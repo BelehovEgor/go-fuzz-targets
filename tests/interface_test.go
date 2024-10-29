@@ -22,7 +22,7 @@ func FuzzBuyCar(f *testing.F) {
 			Return(price). // setup as args of regular functions?
 			AnyTimes()
 
-		err := funcs.BuyCar(carMock, -123)
+		err := funcs.BuyCar(carMock, money)
 		if err == nil {
 			// some result processing
 			return
