@@ -13,16 +13,26 @@ func (q quotaUser) Get() (string, string) { return "quotaUser", string(q) }
 
 func Fuzz_AbuseReportsInsertCall_Do(f *testing.F) {
 	f.Fuzz(func(t *testing.T, data []byte) {
-		var c *youtube.AbuseReportsInsertCall
-		var s []googleapi.Field
-		var str string
+		var s *youtube.Service
+		var part []string
+		var abusereport *youtube.AbuseReport
 		fz := fuzzer.NewFuzzer(data)
-		fz.Fill(&c, &s, &str)
-		if c == nil {
+		fz.Fill(&s, &part, &abusereport)
+		if s == nil || abusereport == nil {
 			return
 		}
 
-		_, err := c.Do(quotaUser(str))
+		r := youtube.NewAbuseReportsService(s)
+		abuseReportsInsertCall := r.Insert(part, abusereport)
+
+		var fields []googleapi.Field
+		var str string
+		fz.Fill(&fields, &str)
+		if abuseReportsInsertCall == nil {
+			return
+		}
+
+		_, err := abuseReportsInsertCall.Do(quotaUser(str))
 		if err != nil {
 			return
 		}
