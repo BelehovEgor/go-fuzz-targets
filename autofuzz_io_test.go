@@ -23,6 +23,23 @@ func Fuzz_LimitedReader_Read(f *testing.F) {
 	})
 }
 
+/*func Fuzz_LimitedReader_Read_2(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var l *io.LimitedReader
+		var p []byte
+		fz := fuzzer.NewFuzzer(data)
+		fz.Fill(&l, &p)
+		if l == nil {
+			return
+		}
+
+		_, err := l.Read(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
+}*/
+
 func Fuzz_OffsetWriter_Seek(f *testing.F) {
 	f.Fuzz(func(t *testing.T, data []byte) {
 		var o *io.OffsetWriter
