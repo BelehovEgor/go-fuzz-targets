@@ -14,6 +14,7 @@ import (
 )
 
 func Fuzz_AbuseReportsInsertCall_Context(f *testing.F) {
+	f.Add([]byte("adw"))
 	f.Fuzz(func(t *testing.T, data []byte) {
 		var c *youtube.AbuseReportsInsertCall
 		var ctx context.Context
