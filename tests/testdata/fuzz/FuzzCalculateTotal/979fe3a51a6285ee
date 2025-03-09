@@ -1,4 +1,0 @@
-go test fuzz v1
-float64(-22)
-int(5)
-float64(0.08)
