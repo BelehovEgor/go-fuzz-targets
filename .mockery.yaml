@@ -1,0 +1,9 @@
+with-expecter: True
+packages:
+  io:
+    interfaces:
+      Writer:
+  github.com/kr/pretty:
+    interfaces:
+      Logfer:
+      Printfer:

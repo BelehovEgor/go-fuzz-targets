@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/fuzzcheck.go",
+            "args": [
+                "autofuzz_test.go"
+            ],
+            "env": {                 
+                "openrouter_api_key": "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",
+                "gigachat_api_key": "Y2QyN2I5ZWEtOGMxMy00ZTZhLWFhZDItZTdiY2MzNWZhNTY1OjViYWYzYWEyLTA2OTEtNGE3ZS1iYzg4LTE2OGEyNmM0Y2IyOA==",
+                "groq_api_key": "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"
+            }
+        }
+    ]
+}
