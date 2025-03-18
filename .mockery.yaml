@@ -1,0 +1,23 @@
+with-expecter: True
+packages:
+  google.golang.org/api/option:
+    interfaces:
+      ClientOption:
+  io:
+    interfaces:
+      Reader:
+      ReaderAt:
+  log/slog:
+    interfaces:
+      Handler:
+  context:
+    interfaces:
+      Context:
+  net/http:
+    interfaces:
+      RoundTripper:
+      CookieJar:
+  google.golang.org/api/googleapi:
+    interfaces:
+      MediaOption:
+      CallOption:
