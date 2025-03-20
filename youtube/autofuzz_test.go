@@ -23,6 +23,8 @@ import (
 	youtube "google.golang.org/api/youtube/v3"
 )
 
+// #1
+
 // Example description
 // Errors
 // Complex struct
@@ -209,6 +211,207 @@ func Fuzz_N16_ActivitiesListCall_Pages_gpt(f *testing.F) {
 			t.Error("unexpected error")
 			t.FailNow()
 		}
+	})
+}
+
+// #2
+// Example description
+// Error or nil
+// Array of args
+// No usage example
+func Fuzz_N673_VideosReportAbuseCall_Do_default(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var c *youtube.VideosReportAbuseCall
+		var opts []googleapi.CallOption
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&c, &opts)
+		if err != nil || c == nil {
+			return
+		}
+
+		// Put here your precondition of func arguments...
+
+		c.Do(opts...)
+
+		// Put here your postcondition of func results...
+	})
+}
+
+// Prompt
+/*
+You write fuzzing test using golang
+
+Purpose: extend target func result check in fuzzing target
+
+Requirements:
+        + return only fuzz target code
+        + you can past code only instead comments like "Put here your"
+        + no explanation
+        + process all edge cases
+        + if arguments is invalid, target function shouldn't be call, this case should be skipped
+        + if there is an explicit exception creation, skip only them by their message, the rest should cause a fuzzing test error
+        + situations that should not occur during the execution of the function should end with t.Error
+        + use simple strings for t.Error or t.Log without any variables format
+        + don't use not exported fields in validation checks (its starts with lowercase letter)
+
+Target func from package google.golang.org/api/youtube/v3:
+
+func (c *VideosReportAbuseCall) Do(opts ...googleapi.CallOption) error {
+        gensupport.SetOptions(c.urlParams_, opts...)
+        res, err := c.doRequest("json")
+        if err != nil {
+                return err
+        }
+        defer googleapi.CloseBody(res)
+        if err := googleapi.CheckResponse(res); err != nil {
+                return gensupport.WrapError(err)
+        }
+        c.s.logger.DebugContext(c.ctx_, "api response", "serviceName", apiName, "rpcName", "youtube.videos.reportAbuse", "response", internallog.HTTPResponse(res, nil))
+        return nil
+}
+
+Current fuzzing target test:
+
+func Fuzz_N673_VideosReportAbuseCall_Do(f *testing.F) {
+        f.Fuzz(func(t *testing.T, data []byte) {
+                var c *youtube.VideosReportAbuseCall
+                var opts []googleapi.CallOption
+                fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+                err := fz.Fill2(&c, &opts)
+                if err != nil || c == nil {
+                        return
+                }
+
+                // Put here your precondition of func arguments...
+
+                c.Do(opts...)
+
+                // Put here your postcondition of func results...
+        })
+}
+
+Current import aliases:
+
+import (
+        "context"
+        mocks "example/mocks/context"
+        mocks_1 "example/mocks/google.golang.org/api/googleapi"
+        mocks_5 "example/mocks/google.golang.org/api/option"
+        mocks_2 "example/mocks/io"
+        mocks_4 "example/mocks/log/slog"
+        mocks_3 "example/mocks/net/http"
+        "io"
+        "log/slog"
+        "net/http"
+        "net/url"
+        "reflect"
+        "testing"
+        "time"
+
+        "github.com/BelehovEgor/fzgen/fuzzer"
+        "github.com/stretchr/testify/mock"
+        "google.golang.org/api/googleapi"
+        "google.golang.org/api/internal"
+        "google.golang.org/api/option"
+        youtube "google.golang.org/api/youtube/v3"
+)
+*/
+
+// #LLM claude-3-7-sonnet-20250219
+// count fixes: 1
+// hallucinations
+// broken struct of fuzz method
+// #summary:
+// invalid precondition. hallucinations
+// valid post condition.
+// mocks in import -> trying use mock to broke fuzz func
+func Fuzz_N673_VideosReportAbuseCall_Do_cloude(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var c *youtube.VideosReportAbuseCall
+		var opts []googleapi.CallOption
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&c, &opts)
+		if err != nil || c == nil {
+			return
+		}
+
+		// if c.URLParams() == nil {
+		// 		return
+		// }
+
+		//mockRes := &http.Response{}
+		// mockDoRequest := func(alt string) (*http.Response, error) {
+		// 		if alt != "json" {
+		// 				t.Error("Unexpected alt format in doRequest")
+		// 				return nil, nil
+		// 		}
+		// 		return mockRes, nil
+		// }
+
+		// Replace the doRequest method
+		//c.SetDoRequestFunc(mockDoRequest)
+
+		// Test case: doRequest returns an error
+		// mockErrDoRequest := func(alt string) (*http.Response, error) {
+		// 		return nil, fmt.Errorf("doRequest error")
+		// }
+		//c.SetDoRequestFunc(mockErrDoRequest)
+		err = c.Do(opts...)
+		// if err == nil {
+		// 		t.Error("Expected error when doRequest fails, but got nil")
+		// }
+
+		// Test case: CheckResponse returns an error
+		// mockRes.StatusCode = http.StatusBadRequest
+		// c.SetDoRequestFunc(mockDoRequest)
+		// err = c.Do(opts...)
+		// if err == nil {
+		// 		t.Error("Expected error when CheckResponse fails, but got nil")
+		// }
+
+		// // Test case: Success path
+		// mockRes.StatusCode = http.StatusOK
+		// c.SetDoRequestFunc(mockDoRequest)
+		// err = c.Do(opts...)
+		// if err != nil {
+		// 		t.Error("Expected success but got error")
+		// }
+	})
+}
+
+// #LLM chatgpt-4o-latest-20250129
+// count fixes: 0
+// #summary:
+// invalid precondition.
+// invalid post condition 
+// mocks in import -> trying use mock to broke fuzz func
+
+func Fuzz_N673_VideosReportAbuseCall_Do(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var c *youtube.VideosReportAbuseCall
+		var opts []googleapi.CallOption
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&c, &opts)
+		if err != nil || c == nil { //|| c.s == nil || c.s.client == nil || c.urlParams_ == nil {
+			return
+		}
+
+		// res := &http.Response{
+		// 	Body:       io.NopCloser(&mocks_2.Reader{}),
+		// 	StatusCode: http.StatusOK,
+		// }
+
+		// mocks_3.OnDo(c.s.client, mock.Anything).Return(res, nil).Once()
+		// mocks_1.OnCheckResponse(res).Return(nil).Once()
+
+		err = c.Do(opts...)
+
+		// if err != nil {
+		// 	if gensupport.IsExplicitlyWrappedError(err) {
+		// 		return
+		// 	}
+		// 	t.Error("unexpected error")
+		// }
 	})
 }
 

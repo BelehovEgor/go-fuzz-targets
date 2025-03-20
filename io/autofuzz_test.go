@@ -10,6 +10,8 @@ import (
 	"github.com/BelehovEgor/fzgen/fuzzer"
 )
 
+// #1
+
 // Example description
 // Maybe only two type of realization
 // No expected errors/panics
@@ -192,6 +194,216 @@ func Fuzz_N24_NopCloser_gpt(f *testing.F) {
 		// }
 	})
 }
+
+// #2
+
+// Example description
+// Can return 0 and error, or result and nil
+// No expected errors/panics
+// Simple usage
+
+// Generated
+// Fuzzing successful 27
+func Fuzz_N27_ReadAtLeast_default(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var r io.Reader
+		var buf []byte
+		var min int
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&r, &buf, &min)
+		if err != nil {
+			return
+		}
+
+		// Put here your precondition of func arguments...
+
+		io.ReadAtLeast(r, buf, min)
+
+		// Put here your postcondition of func results...
+	})
+}
+
+// Prompt
+
+/*
+You write fuzzing test using golang
+
+Purpose: extend target func result check in fuzzing target 
+
+Requirements: 
+        + return only fuzz target code 
+        + you can past code only instead comments like "Put here your" 
+        + no explanation 
+        + process all edge cases 
+        + if arguments is invalid, target function shouldn't be call, this case should be skipped 
+        + if there is an explicit exception creation, skip only them by their message, the rest should cause a fuzzing test error 
+        + situations that should not occur during the execution of the function should end with t.Error 
+        + use simple strings for t.Error or t.Log without any variables format 
+        + don't use not exported fields in validation checks (its starts with lowercase letter)
+
+Target func from package io:
+
+func ReadAtLeast(r Reader, buf []byte, min int) (n int, err error) {
+        if len(buf) < min {
+                return 0, ErrShortBuffer
+        }
+        for n < min && err == nil {
+                var nn int
+                nn, err = r.Read(buf[n:])
+                n += nn
+        }
+        if n >= min {
+                err = nil
+        } else if n > 0 && err == EOF {
+                err = ErrUnexpectedEOF
+        }
+        return
+}
+
+Example of using func:
+
+func ReadFull(r Reader, buf []byte) (n int, err error) {
+        return ReadAtLeast(r, buf, len(buf))
+}
+
+Current fuzzing target test:
+
+func Fuzz_N27_ReadAtLeast(f *testing.F) {
+        f.Fuzz(func(t *testing.T, data []byte) {
+                var r io.Reader
+                var buf []byte
+                var min int
+                fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+                err := fz.Fill2(&r, &buf, &min)
+                if err != nil {
+                        return
+                }
+
+                // Put here your precondition of func arguments...
+
+                io.ReadAtLeast(r, buf, min)
+
+                // Put here your postcondition of func results...
+        })
+}
+
+Current import aliases:
+
+import (
+        mocks "example/mocks/io"
+        io "io"
+        "reflect"
+        "testing"
+
+        "github.com/BelehovEgor/fzgen/fuzzer"
+        "github.com/stretchr/testify/mock"
+)
+*/
+
+// #LLM claude-3-7-sonnet-20250219
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid post condition.
+// successful fuzzing 26
+func Fuzz_N27_ReadAtLeast_cloude(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var r io.Reader
+		var buf []byte
+		var min int
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&r, &buf, &min)
+		if err != nil {
+			return
+		}
+
+		if r == nil || min < 0 {
+			return
+		}
+
+		if len(buf) < min {
+			n, err := io.ReadAtLeast(r, buf, min)
+			if err != io.ErrShortBuffer {
+				t.Error("Expected ErrShortBuffer when buffer length is less than min")
+			}
+			if n != 0 {
+				t.Error("Expected n to be 0 when buffer length is less than min")
+			}
+			return
+		}
+
+		n, err := io.ReadAtLeast(r, buf, min)
+
+		if min == 0 && n == 0 && err != nil {
+			t.Error("Expected no error when min is 0 and n is 0")
+		}
+
+		if n < min && err == nil {
+			t.Error("Expected error when n is less than min")
+		}
+
+		if n >= min && err != nil && err != io.EOF {
+			t.Error("Expected no error when n is greater than or equal to min")
+		}
+
+		if n > 0 && n < min && err == io.EOF && err != io.ErrUnexpectedEOF {
+			t.Error("Expected ErrUnexpectedEOF when n is greater than 0 but less than min and EOF")
+		}
+	})
+}
+
+// #LLM chatgpt-4o-latest-20250129
+// count fixes: 1
+// trying create mock for fuzzing
+// #summary:
+// invalid precondition.
+// valid post condition.
+// successful fuzzing 27
+func Fuzz_N27_ReadAtLeast_gpt(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var r io.Reader
+		var buf []byte
+		var min int
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&r, &buf, &min)
+		if err != nil {
+			return
+		}
+
+		if min < 0 {
+			return
+		}
+		if len(buf) < min {
+			expectedErr := io.ErrShortBuffer
+			_, err := io.ReadAtLeast(r, buf, min)
+			if err != expectedErr {
+				t.Error("unexpected error when buffer is too small")
+			}
+			return
+		}
+
+		// mockReader := new(mocks.Reader)
+		// mockReader.On("Read", mock.Anything).Return(0, io.EOF).Maybe()
+		// r = mockReader
+
+		n, err := io.ReadAtLeast(r, buf, min)
+
+		if n < min && err == nil {
+			t.Error("expected error when not enough bytes are read")
+		}
+		if n >= min && err != nil {
+			t.Error("unexpected error when enough bytes are read")
+		}
+		if n > 0 && err == io.EOF {
+			t.Error("unexpected EOF error when some bytes were read")
+		}
+		if err != nil && err != io.ErrUnexpectedEOF && err != io.EOF {
+			t.Error("unexpected error returned")
+		}
+	})
+}
+
+// Fabrics
 
 func fabric_interface_io_Writer_PipeWriter(impl *io.PipeWriter) io.Writer {
 	return impl
