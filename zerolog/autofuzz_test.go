@@ -34,6 +34,70 @@ func Fuzz_N51_Event_Floats64_default(f *testing.F) {
 	})
 }
 
+// Prompt
+
+/*
+You write fuzzing test using golang
+
+Purpose: extend target func result check in fuzzing target
+
+Requirements:
+        + return only fuzz target code
+        + you can past code only instead comments like "Put here your"
+        + no explanation
+        + process all edge cases
+        + if arguments is invalid, target function shouldn't be call, this case should be skipped
+        + if there is an explicit exception creation, skip only them by their message, the rest should cause a fuzzing test error
+        + situations that should not occur during the execution of the function should end with t.Error
+        + use simple strings for t.Error or t.Log without any variables format
+        + don't use not exported fields in validation checks (its starts with lowercase letter)
+
+Target func from package github.com/rs/zerolog:
+
+func (e *Event) Floats64(key string, f []float64) *Event {
+        if e == nil {
+                return e
+        }
+        e.buf = enc.AppendFloats64(enc.AppendKey(e.buf, key), f, FloatingPointPrecision)
+        return e
+}
+
+Current fuzzing target test:
+
+func Fuzz_N51_Event_Floats64(f *testing.F) {
+        f.Fuzz(func(t *testing.T, data []byte) {
+                var e *zerolog.Event
+                var key string
+                var f []float64
+                fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+                err := fz.Fill2(&e, &key, &f)
+                if err != nil || e == nil {
+                        return
+                }
+
+                // Put here your precondition of func arguments...
+
+                e.Floats64(key, f)
+
+                // Put here your postcondition of func results...
+        })
+}
+
+Current import aliases:
+
+import (
+        "context"
+        "io"
+        "net"
+        "reflect"
+        "testing"
+        "time"
+
+        "github.com/BelehovEgor/fzgen/fuzzer"
+        zerolog "github.com/rs/zerolog"
+)
+*/
+
 // #LLM claude-3-7-sonnet-20250219
 // count fixes: 1
 // trying use unexported
