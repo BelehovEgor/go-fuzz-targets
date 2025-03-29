@@ -148,6 +148,43 @@ func Fuzz_N24_NopCloser_claude(f *testing.F) {
 	})
 }
 
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid postcondition.
+// fuzzing success 20
+func Fuzz_N24_NopCloser_claude_thinking(f *testing.F) {
+    f.Fuzz(func(t *testing.T, data []byte) {
+        var r io.Reader
+        fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors, fuzzer.FillUnexported)
+        err := fz.Fill2(&r)
+        if err != nil {
+            return
+        }
+        
+        if r == nil {
+            return
+        }
+
+        rc := io.NopCloser(r)
+        
+        if rc == nil {
+            t.Error("NopCloser returned nil")
+        }
+        
+        _, hasWriterTo := r.(io.WriterTo)
+        _, rcHasWriterTo := rc.(io.WriterTo)
+        if hasWriterTo && !rcHasWriterTo {
+            t.Error("NopCloser did not preserve WriterTo interface")
+        }
+        
+        if err := rc.Close(); err != nil {
+            t.Error("Close returned an error")
+        }
+    })
+}
+
 // #LLM chatgpt-4o-latest-20250129
 // count fixes: 3
 // loose code - return only body of target without signature
@@ -350,6 +387,75 @@ func Fuzz_N27_ReadAtLeast_cloude(f *testing.F) {
 			t.Error("Expected ErrUnexpectedEOF when n is greater than 0 but less than min and EOF")
 		}
 	})
+}
+
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid postcondition.
+// fuzzing success 27
+
+func Fuzz_N27_ReadAtLeast_claude_thinking(f *testing.F) {
+    f.Fuzz(func(t *testing.T, data []byte) {
+        var r io.Reader
+        var buf []byte
+        var min int
+        fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+        err := fz.Fill2(&r, &buf, &min)
+        if err != nil {
+            return
+        }
+
+        if r == nil {
+            return
+        }
+        
+        if min < 0 {
+            return
+        }
+
+        n, err := io.ReadAtLeast(r, buf, min)
+
+        if n < 0 {
+            t.Error("ReadAtLeast returned negative byte count")
+        }
+        if n > len(buf) {
+            t.Error("ReadAtLeast returned byte count larger than buffer size")
+        }
+
+        if len(buf) < min {
+            if err != io.ErrShortBuffer {
+                t.Error("Expected ErrShortBuffer when buffer smaller than min")
+            }
+            if n != 0 {
+                t.Error("Expected zero bytes read with ErrShortBuffer")
+            }
+            return
+        }
+
+        if min == 0 {
+            if n != 0 {
+                t.Error("Expected zero bytes read when min is 0")
+            }
+            if err != nil {
+                t.Error("Expected nil error when min is 0")
+            }
+            return
+        }
+
+        if n >= min && err != nil {
+            t.Error("Expected nil error when reading at least min bytes")
+        }
+        
+        if 0 < n && n < min && err == io.EOF {
+            t.Error("Expected ErrUnexpectedEOF instead of EOF when partial read")
+        }
+        
+        if err == io.ErrUnexpectedEOF && !(0 < n && n < min) {
+            t.Error("Got ErrUnexpectedEOF outside of a partial read scenario")
+        }
+    })
 }
 
 // #LLM chatgpt-4o-latest-20250129

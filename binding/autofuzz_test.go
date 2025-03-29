@@ -159,6 +159,38 @@ func Fuzz_N2_Errors_Has_claude(f *testing.F) {
 	})
 }
 
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid post condition.
+// fuzzing 36
+func Fuzz_N2_Errors_Has_claude_thinking(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var e *binding.Errors
+		var class string
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&e, &class)
+		if err != nil || e == nil {
+			return
+		}
+
+		result := e.Has(class)
+
+		expected := false
+		for _, err := range *e {
+			if err.Kind() == class {
+				expected = true
+				break
+			}
+		}
+
+		if result != expected {
+			t.Error("Has returned an incorrect value")
+		}
+	})
+}
+
 // #LLM chatgpt-4o-latest-20250129
 // count fixes: 0
 // #summary:

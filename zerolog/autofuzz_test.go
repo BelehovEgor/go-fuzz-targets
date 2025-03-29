@@ -147,6 +147,37 @@ func Fuzz_N51_Event_Floats64_claude(f *testing.F) {
 	})
 }
 
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid postcondition.
+// fuzzing success 222
+func Fuzz_N51_Event_Floats64_claude_thinking(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var e *zerolog.Event
+		var key string
+		var f []float64
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&e, &key, &f)
+		if err != nil || e == nil {
+			return
+		}
+
+		defer func() {
+			if r := recover(); r != nil {
+				t.Error("Floats64 method should not panic")
+			}
+		}()
+
+		result := e.Floats64(key, f)
+
+		if result != e {
+			t.Error("Method should return the same event instance")
+		}
+	})
+}
+
 // #LLM chatgpt-4o-latest-20250129
 // count fixes: 2
 // use unexsited

@@ -160,6 +160,52 @@ func Fuzz_N5_Logger_Record_claude_1(f *testing.F) {
 	})
 }
 
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid postcondition.
+// fuzzing succ 20
+func Fuzz_N5_Logger_Record_sonnet_thinking(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var self *persistence.Logger
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&self)
+		if err != nil || self == nil {
+			return
+		}
+
+		defer func() {
+			r := recover()
+			if r != nil {
+				// Expected panic if state cannot be changed to recording
+				// Skip the test in case of panic
+				return
+			}
+		}()
+
+		rval := self.Record()
+
+		if rval == nil {
+			t.Error("Returned channel is nil")
+		}
+
+		// Verify it's a buffered channel with capacity 1
+		ch := reflect.ValueOf(rval)
+		if ch.Cap() != 1 {
+			t.Error("Channel capacity is not 1")
+		}
+
+		// Avoid goroutine leak
+		select {
+		case <-rval:
+			// Successfully read from channel
+		default:
+			// Channel is empty, that's also fine
+		}
+	})
+}
+
 // #LLM chatgpt-4o-latest-20250129
 // count fixes: 1
 // using unexists
@@ -323,6 +369,51 @@ func Fuzz_N5_Logger_Record_claude_2(f *testing.F) {
 	})
 }
 
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid postcondition.
+// fuzzing succ 24
+func Fuzz_N5_Logger_Record_claude_thinking(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var self *persistence.Logger
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&self)
+		if err != nil || self == nil {
+			return
+		}
+
+		defer func() {
+			r := recover()
+			if r != nil {
+				// Expected panic, skip test
+				return
+			}
+		}()
+
+		rval := self.Record()
+
+		if rval == nil {
+			t.Error("Returned channel is nil")
+		}
+
+		// Verify it's a buffered channel with capacity 1
+		ch := reflect.ValueOf(rval)
+		if ch.Cap() != 1 {
+			t.Error("Channel capacity is not 1")
+		}
+
+		// Avoid goroutine leak
+		select {
+		case <-rval:
+			// Read from channel
+		default:
+			// Channel is empty
+		}
+	})
+}
+
 // #LLM chatgpt-4o-latest-20250129
 // count fixes: 1
 // invalid string creation
@@ -383,13 +474,28 @@ func fabric_interface_empty_Logger(impl persistence.Logger) interface{} {
 	return impl
 }
 
+func fabric_constructor_wrapper_NewLogger_0(
+	dir string,
+) (result persistence.Logger, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("runtime panic: %v", r)
+		}
+	}()
+
+	res := persistence.NewLogger(
+		dir,
+	)
+	return *res, err
+}
+
 var FabricFuncsForCustomTypes map[string][]reflect.Value
 
 func TestMain(m *testing.M) {
 	FabricFuncsForCustomTypes = make(map[string][]reflect.Value)
-	FabricFuncsForCustomTypes["interface {}"] = append(FabricFuncsForCustomTypes["interface {}"], reflect.ValueOf(fabric_interface_empty_Logger))
 	FabricFuncsForCustomTypes["interface {}"] = append(FabricFuncsForCustomTypes["interface {}"], reflect.ValueOf(fabric_interface_empty_string))
 	FabricFuncsForCustomTypes["interface {}"] = append(FabricFuncsForCustomTypes["interface {}"], reflect.ValueOf(fabric_interface_empty_Op))
-	FabricFuncsForCustomTypes["persistence.Logger"] = append(FabricFuncsForCustomTypes["persistence.Logger"], reflect.ValueOf(persistence.NewLogger))
+	FabricFuncsForCustomTypes["interface {}"] = append(FabricFuncsForCustomTypes["interface {}"], reflect.ValueOf(fabric_interface_empty_Logger))
+	FabricFuncsForCustomTypes["persistence.Logger"] = append(FabricFuncsForCustomTypes["persistence.Logger"], reflect.ValueOf(fabric_constructor_wrapper_NewLogger_0))
 	m.Run()
 }

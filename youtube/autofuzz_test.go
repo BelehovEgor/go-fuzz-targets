@@ -187,6 +187,33 @@ func Fuzz_N16_ActivitiesListCall_Pages_claude(f *testing.F) {
 
 // Would you like me to explain or break down the code?
 
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition.
+// valid postcondition.
+// fuzzing failed as generated test
+func Fuzz_N16_ActivitiesListCall_Pages_claude_thinking(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var c *youtube.ActivitiesListCall
+		var ctx context.Context
+		var f func(*youtube.ActivityListResponse) error
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&c, &ctx, &f)
+		if err != nil || c == nil {
+			return
+		}
+
+		if ctx == nil || f == nil {
+			return
+		}
+
+		err = c.Pages(ctx, f)
+
+		// Skip normal cases - either nil error or any error is expected behavior
+	})
+}
+
 // #LLM chatgpt-4o-latest-20250129
 // count fixes: 0
 // #summary:
@@ -379,11 +406,39 @@ func Fuzz_N673_VideosReportAbuseCall_Do_cloude(f *testing.F) {
 	})
 }
 
+// #LLM claude-3-7-sonnet-20250219-thinking-32k
+// count fixes: 0
+// #summary:
+// valid precondition. Invalid created struct
+// valid postcondition.
+// fuzzing faild
+func Fuzz_N673_VideosReportAbuseCall_Do_claude_thinking(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		var c *youtube.VideosReportAbuseCall
+		var opts []googleapi.CallOption
+		fz := fuzzer.NewFuzzerV2(data, FabricFuncsForCustomTypes, t, fuzzer.Constructors)
+		err := fz.Fill2(&c, &opts)
+		if err != nil || c == nil {
+			return
+		}
+
+		defer func() {
+			if r := recover(); r != nil {
+				t.Error("VideosReportAbuseCall.Do() panicked unexpectedly")
+			}
+		}()
+
+		err = c.Do(opts...)
+
+		// No need to check for errors as they are expected return values
+	})
+}
+
 // #LLM chatgpt-4o-latest-20250129
 // count fixes: 0
 // #summary:
 // invalid precondition.
-// invalid post condition 
+// invalid post condition
 // mocks in import -> trying use mock to broke fuzz func
 
 func Fuzz_N673_VideosReportAbuseCall_Do(f *testing.F) {
